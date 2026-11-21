@@ -7,7 +7,7 @@ export function requireAuth(req, res, next) {
   if (!token) return res.status(401).json({ message: "Authentication required" });
 
   try {
-    req.userId = jwt.verify(token, process.env.JWT_SECRET || "lead-manager-development-secret").sub;
+    req.userId = jwt.verify(token, process.env.JWT_SECRET || "leadflow-development-secret").sub;
     next();
   } catch {
     res.status(401).json({ message: "Invalid or expired session" });

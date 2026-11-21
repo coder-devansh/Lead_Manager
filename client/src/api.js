@@ -1,4 +1,5 @@
-const API_URL = "/api";
+const configuredApiUrl = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
+const API_URL = configuredApiUrl.endsWith("/api") ? configuredApiUrl : `${configuredApiUrl}/api`;
 
 async function request(path, options = {}) {
   const token = localStorage.getItem("lead_manager_token");

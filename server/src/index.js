@@ -2,16 +2,41 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import leadsRouter from "./routes/leads.js";
 import authRouter from "./routes/auth.js";
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+app.use(cors({
+  origin(origin, callback) {
+    if (process.env.SERVE_CLIENT === "true") return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error("Origin not allowed"));
+  }
+}));
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRouter);
 app.use("/api/leads", leadsRouter);
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDist = path.resolve(__dirname, "../../client/dist");
+
+if (process.env.SERVE_CLIENT === "true") {
+  app.use(express.static(clientDist));
+  app.use((req, res, next) => {
+    if (req.method === "GET" && !req.path.startsWith("/api/")) {
+      return res.sendFile(path.join(clientDist, "index.html"));
+    }
+    next();
+  });
+}
 
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 app.use((error, _req, res, _next) => {
@@ -26,6 +51,9 @@ app.use((error, _req, res, _next) => {
 });
 
 async function start() {
+  if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is required in production");
+  }
   const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/lead_manager";
   await mongoose.connect(uri);
   console.log("Connected to MongoDB");

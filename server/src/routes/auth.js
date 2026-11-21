@@ -6,7 +6,7 @@ import User from "../models/User.js";
 const router = Router();
 
 function createToken(user) {
-  return jwt.sign({ sub: user._id.toString(), email: user.email }, process.env.JWT_SECRET || "lead-manager-development-secret", {
+  return jwt.sign({ sub: user._id.toString(), email: user.email }, process.env.JWT_SECRET || "leadflow-development-secret", {
     expiresIn: "7d"
   });
 }

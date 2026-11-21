@@ -233,3 +233,54 @@ Confirm port `5000` is not already in use and restart:
 ```bash
 npm run dev
 ```
+
+## Deployment
+
+Leadflow supports one-service deployment or separate frontend and backend hosting.
+
+### Option 1: Single web service
+
+For Render or another Node.js host, use:
+
+```text
+Build command: npm run install:all && npm run build
+Start command: npm run start:production
+Health check: /api/health
+```
+
+Set these environment variables:
+
+```env
+NODE_ENV=production
+SERVE_CLIENT=true
+MONGODB_URI=your-production-mongodb-uri
+JWT_SECRET=your-long-random-production-secret
+PORT=provided-by-host
+```
+
+The repository includes `render.yaml` for Render Blueprint deployment. In MongoDB Atlas, allow the hosting provider's network or add the required IP access rule.
+
+### Option 2: Separate frontend and backend
+
+Deploy `server/` to a Node.js web service and `client/` to a static host.
+
+Backend environment variables:
+
+```env
+NODE_ENV=production
+MONGODB_URI=your-production-mongodb-uri
+JWT_SECRET=your-long-random-production-secret
+CLIENT_URL=https://your-frontend.example.com
+PORT=provided-by-host
+SERVE_CLIENT=false
+```
+
+`CLIENT_URL` may contain comma-separated origins when more than one frontend domain is required.
+
+Frontend environment variable:
+
+```env
+VITE_API_URL=https://your-api.example.com
+```
+
+If `VITE_API_URL` is empty, the frontend uses relative `/api` requests and is appropriate when both parts share one origin.

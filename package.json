@@ -5,9 +5,11 @@
     "install:all": "npm install && npm --prefix server install && npm --prefix client install",
     "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
     "start": "npm --prefix server start",
-    "build": "npm --prefix client run build"
+    "build": "npm --prefix client run build",
+    "start:production": "npm run build && cross-env SERVE_CLIENT=true npm --prefix server start"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3"
   }
 }
