@@ -16,15 +16,11 @@ A responsive full-stack lead tracking app built with React, Node.js/Express, and
 ### Prerequisites
 
 - Node.js 18+
-- MongoDB (or Docker)
-
-### Option 1: MongoDB with Docker
-
-```bash
-docker compose up -d mongo
-```
+- MongoDB Community Server, running locally on port `27017`
 
 ### Setup
+
+Start MongoDB locally first, then run:
 
 ```bash
 npm run install:all
