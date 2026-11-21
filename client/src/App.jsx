@@ -54,7 +54,7 @@ function AuthScreen({ onAuthenticated }) {
   return (
     <div className="auth-page">
       <section className="auth-card">
-        <div className="auth-brand"><span className="brand-mark">LM</span><strong>Lead Manager</strong></div>
+        <div className="auth-brand"><span className="brand-mark">LF</span><strong>Leadflow</strong></div>
         <p className="eyebrow">{mode === "login" ? "Welcome back" : "Create your account"}</p>
         <h1>{mode === "login" ? "Sign in" : "Start managing leads"}</h1>
         <form onSubmit={submit} noValidate>
@@ -194,7 +194,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar"><div className="brand"><span className="brand-mark">LM</span><span>Lead Manager</span></div><button className="logout" type="button" onClick={logout}>Sign out</button></aside>
+      <aside className="sidebar"><div className="brand"><span className="brand-mark">LF</span><span>Leadflow</span></div><button className="logout" type="button" onClick={logout}>Sign out</button></aside>
       <main>
         <header className="topbar"><div><p className="eyebrow">Sales workspace</p><h1>Leads</h1></div><div className="top-actions"><span className="user-name">{session.user.name}</span><button className="button secondary mobile-signout" type="button" onClick={logout}>Sign out</button><button className="button primary" type="button" onClick={() => setModal(EMPTY_LEAD)}>+ Add lead</button></div></header>
         <section className="content">

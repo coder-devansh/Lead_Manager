@@ -1,5 +1,5 @@
 {
-  "name": "lead-manager-server",
+  "name": "leadflow-server",
   "version": "1.0.0",
   "type": "module",
   "main": "src/index.js",

@@ -1,4 +1,4 @@
-# Lead Manager
+# Leadflow
 
 A responsive full-stack lead tracking app built with React, Node.js/Express, and MongoDB.
 

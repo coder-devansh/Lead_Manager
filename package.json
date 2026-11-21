@@ -1,5 +1,5 @@
 {
-  "name": "lead-manager",
+  "name": "leadflow",
   "private": true,
   "scripts": {
     "install:all": "npm install && npm --prefix server install && npm --prefix client install",
