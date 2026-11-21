@@ -5,6 +5,7 @@ export const STATUSES = ["New", "Contacted", "Qualified", "Lost"];
 
 const leadSchema = new mongoose.Schema(
   {
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     name: { type: String, required: true, trim: true, maxlength: 100 },
     email: {
       type: String,
@@ -25,5 +26,6 @@ const leadSchema = new mongoose.Schema(
 leadSchema.index({ name: "text", email: "text", company: "text" });
 leadSchema.index({ status: 1 });
 leadSchema.index({ createdAt: -1 });
+leadSchema.index({ owner: 1, status: 1, createdAt: -1 });
 
 export default mongoose.model("Lead", leadSchema);

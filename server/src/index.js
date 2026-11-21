@@ -3,12 +3,14 @@ import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import leadsRouter from "./routes/leads.js";
+import authRouter from "./routes/auth.js";
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
+app.use("/api/auth", authRouter);
 app.use("/api/leads", leadsRouter);
 
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));

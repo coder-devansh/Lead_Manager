@@ -1,19 +1,24 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import mongoose from "mongoose";
 import Lead from "../src/models/Lead.js";
 
+const owner = new mongoose.Types.ObjectId();
+
 test("Lead requires core fields", () => {
-  const lead = new Lead({});
+  const lead = new Lead({ owner });
   const errors = lead.validateSync();
   assert.ok(errors.errors.name);
   assert.ok(errors.errors.email);
   assert.ok(errors.errors.phone);
   assert.ok(errors.errors.company);
   assert.ok(errors.errors.source);
+  assert.equal(errors.errors.owner, undefined);
 });
 
 test("Lead accepts valid values and defaults to New", () => {
   const lead = new Lead({
+    owner,
     name: "Sam Taylor",
     email: "SAM@example.com",
     phone: "+1 555 123 4567",

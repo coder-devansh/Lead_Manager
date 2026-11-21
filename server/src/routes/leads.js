@@ -1,8 +1,10 @@
 import { Router } from "express";
 import mongoose from "mongoose";
 import Lead, { SOURCES, STATUSES } from "../models/Lead.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
+router.use(requireAuth);
 
 function validateLead(body, partial = false) {
   const errors = {};
@@ -26,8 +28,8 @@ function validateLead(body, partial = false) {
 
 router.get("/", async (req, res, next) => {
   try {
-    const { search = "", status = "" } = req.query;
-    const query = {};
+    const { search = "", status = "", sort = "newest", page = "1", limit = "10" } = req.query;
+    const query = { owner: req.userId };
     if (status) {
       if (!STATUSES.includes(status)) return res.status(400).json({ message: "Invalid status filter" });
       query.status = status;
@@ -39,8 +41,29 @@ router.get("/", async (req, res, next) => {
         { company: { $regex: search.trim(), $options: "i" } }
       ];
     }
-    const leads = await Lead.find(query).sort({ createdAt: -1 });
-    res.json(leads);
+    const pageNumber = Math.max(1, Number.parseInt(page, 10) || 1);
+    const pageSize = Math.min(50, Math.max(1, Number.parseInt(limit, 10) || 10));
+    const sortOptions = {
+      newest: { createdAt: -1 },
+      oldest: { createdAt: 1 },
+      name: { name: 1 },
+      status: { status: 1 }
+    };
+    const [leads, total, statusCounts] = await Promise.all([
+      Lead.find(query).sort(sortOptions[sort] || sortOptions.newest).skip((pageNumber - 1) * pageSize).limit(pageSize),
+      Lead.countDocuments(query),
+      Lead.aggregate([
+        { $match: { owner: new mongoose.Types.ObjectId(req.userId) } },
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ])
+    ]);
+    const counts = Object.fromEntries(STATUSES.map((item) => [item, 0]));
+    statusCounts.forEach(({ _id, count }) => { counts[_id] = count; });
+    res.json({
+      leads,
+      pagination: { page: pageNumber, limit: pageSize, total, pages: Math.ceil(total / pageSize) },
+      counts
+    });
   } catch (error) {
     next(error);
   }
@@ -50,7 +73,7 @@ router.post("/", async (req, res, next) => {
   try {
     const errors = validateLead(req.body);
     if (Object.keys(errors).length) return res.status(400).json({ message: "Validation failed", errors });
-    const lead = await Lead.create(req.body);
+    const lead = await Lead.create({ ...req.body, owner: req.userId });
     res.status(201).json(lead);
   } catch (error) {
     next(error);
@@ -62,7 +85,11 @@ router.put("/:id", async (req, res, next) => {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "Invalid lead ID" });
     const errors = validateLead(req.body, true);
     if (Object.keys(errors).length) return res.status(400).json({ message: "Validation failed", errors });
-    const lead = await Lead.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const lead = await Lead.findOneAndUpdate(
+      { _id: req.params.id, owner: req.userId },
+      req.body,
+      { new: true, runValidators: true }
+    );
     if (!lead) return res.status(404).json({ message: "Lead not found" });
     res.json(lead);
   } catch (error) {
@@ -73,7 +100,7 @@ router.put("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "Invalid lead ID" });
-    const lead = await Lead.findByIdAndDelete(req.params.id);
+    const lead = await Lead.findOneAndDelete({ _id: req.params.id, owner: req.userId });
     if (!lead) return res.status(404).json({ message: "Lead not found" });
     res.status(204).send();
   } catch (error) {

@@ -10,6 +10,9 @@ A responsive full-stack lead tracking app built with React, Node.js/Express, and
 - Filter leads by status
 - Frontend and backend validation
 - Confirmation dialog before deletion
+- Signup and login with private leads per account
+- Status dashboard counts
+- Pagination and table sorting
 
 ## Run locally
 
@@ -34,7 +37,9 @@ Open <http://localhost:5173>. The API runs at <http://localhost:5000>.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/api/leads?search=&status=` | List and filter leads |
+| POST | `/api/auth/signup` | Create an account |
+| POST | `/api/auth/login` | Sign in |
+| GET | `/api/leads?search=&status=&sort=&page=&limit=` | List, filter, sort, and paginate leads |
 | POST | `/api/leads` | Create a lead |
 | PUT | `/api/leads/:id` | Update a lead |
 | DELETE | `/api/leads/:id` | Delete a lead |
